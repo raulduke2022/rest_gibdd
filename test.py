@@ -6,8 +6,27 @@ from aiohttp.web_response import Response
 from asyncpg import Record
 from asyncpg.pool import Pool
 from typing import List, Dict
+import ssl
+
+sslcontext = ssl.create_default_context(
+   cafile='./cert.pem')
+sslcontext.load_cert_chain('./cert.pem',
+                           './key_cert.pem')
+
 routes = web.RouteTableDef()
 DB_KEY = 'database'
+
+app = web.Application()
+
+@app.on_event("shutdown")
+def shutdown_event():
+    with open("log.txt", mode="a") as log:
+        log.write("Application shutdown")
+
+
+@app.get("/items/")
+async def read_items():
+    return [{"name": "Foo"}]
 async def create_database_pool(app: Application):
     print('Создается пул подключений.')
     pool: Pool = await asyncpg.create_pool(host='localhost',
@@ -32,7 +51,6 @@ async def brands(request: Request) -> Response:
 
 
 
-app = web.Application()
 app.on_startup.append(create_database_pool)
 app.on_cleanup.append(destroy_database_pool)
 app.add_routes(routes)
