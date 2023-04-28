@@ -1,28 +1,84 @@
-from aiohttp import web
-from datetime import datetime
-from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-import ssl
+from typing import Union
+import uvicorn
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
+import asyncpg
+from asyncpg import Record
+from asyncpg.pool import Pool
+from typing import List, Dict
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+pool_db: Pool
+
+app = FastAPI()
+
+@app.on_event("startup")
+async def create_database_pool():
+    print('Создается пул подключений.')
+    pool: Pool = await asyncpg.create_pool(host='localhost',
+    port=5432,
+    user='raulduke',
+    password='kakacoarm',
+    database='cars',
+    min_size=6,
+    max_size=6)
+    global pool_db
+    pool_db = pool
 
 
-routes = web.RouteTableDef()
+@app.on_event("shutdown")
+async def destroy_database_pool():
+        print('Уничтожается пул подключений.')
+        pool: Pool = pool_db
+        await pool.close()
 
 
-@routes.get('/time')
-async def time(request: Request) -> Response:
-    today = datetime.today()
-
-    result = {
-        'month': today.month,
-        'day': today.day,
-        'time': str(today.time())
-    }
+@app.get("/")
+async def main():
+    return {"message": "Hello World"}
 
 
-    return web.json_response(result)
+@app.get('/cars')
+async def brands():
+    connection: Pool = pool_db
+    brand_query = 'SELECT * FROM cars;'
+    results: List[Record] = await connection.fetch(brand_query)
+    result_as_dict: List[Dict] = [dict(car) for car in results]
+    return JSONResponse(result_as_dict)
 
 
-app = web.Application()
-app.add_routes(routes)
-web.run_app(app, port=9090, ssl_context=ssl.create_default_context(
-   cafile='./cert.pem'))
+
+@app.get('/cars/{vin}')
+async def brands(vin: str):
+    connection: Pool = pool_db
+    brand_query = 'SELECT * FROM cars WHERE vin_nomer = $1;'
+    results: List[Record] = await connection.fetch(brand_query, vin)
+    if results:
+        result_as_dict: List[Dict] = [dict(car) for car in results]
+        return JSONResponse(result_as_dict)
+    raise HTTPException(status_code=404, detail="Item not found")
+
+
+origins = [
+    "https://testyoursite.ru"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+if __name__ == '__main__':
+    uvicorn.run(
+               app,
+               host="0.0.0.0",
+               port=9002,
+               ssl_keyfile="./key_cert.pem",
+               ssl_certfile="./cert.pem"
+               )
