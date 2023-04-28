@@ -1,6 +1,6 @@
 from typing import Union
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 import asyncpg
 from asyncpg import Record
@@ -59,6 +59,18 @@ async def brands():
     results: List[Record] = await connection.fetch(brand_query)
     result_as_dict: List[Dict] = [dict(car) for car in results]
     return JSONResponse(result_as_dict)
+
+
+
+@app.get('/cars/{vin}')
+async def brands(vin: str):
+    connection: Pool = pool_db
+    brand_query = 'SELECT * FROM cars WHERE car_id = $1;'
+    results: List[Record] = await connection.fetch(brand_query, vin)
+    if results:
+        result_as_dict: List[Dict] = [dict(car) for car in results]
+        return JSONResponse(result_as_dict)
+    raise HTTPException(status_code=404, detail="Item not found")
 
 
 
