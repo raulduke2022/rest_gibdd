@@ -61,7 +61,7 @@ async def brands(vin: str):
 @app.get('/checks/{vin}')
 async def check_vin(vin: str):
     connection: Pool = pool_db
-    check_query = 'SELECT * FROM cars LEFT JOIN checks ON cars.car_id = checks.car WHERE gosnomer = $1'
+    check_query = 'SELECT * FROM cars LEFT JOIN checks ON cars.car_id = checks.car WHERE cars.gosnomer = $1'
     result: Record = await connection.fetchrow(check_query, vin)
     if result:
         result_as_dict: Dict = dict(result)
@@ -71,7 +71,7 @@ async def check_vin(vin: str):
 @app.get('/checks/{gosnomer}')
 async def check_gosnomer(gosnomer: str):
     connection: Pool = pool_db
-    check_query = 'SELECT * FROM cars LEFT JOIN checks ON cars.car_id = checks.car WHERE vin_nomer = $1'
+    check_query = 'SELECT * FROM cars LEFT JOIN checks ON cars.car_id = checks.car WHERE cars.vin_nomer = $1'
     result: Record = await connection.fetchrow(check_query, gosnomer)
     if result:
         result_as_dict: Dict = dict(result)
@@ -90,7 +90,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-s
 
 if __name__ == '__main__':
     uvicorn.run(
