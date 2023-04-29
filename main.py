@@ -58,20 +58,20 @@ async def brands(vin: str):
         return JSONResponse(result_as_dict)
     raise HTTPException(status_code=404, detail="Item not found")
 
-@app.get('/checks/{vin}')
+@app.get('/checks_vin/{vin}')
 async def check_vin(vin: str):
     connection: Pool = pool_db
-    check_query = f"SELECT * FROM cars LEFT JOIN checks ON cars.car_id = checks.car WHERE cars.gosnomer = '{vin}'"
+    check_query = f"SELECT * FROM cars LEFT JOIN checks ON cars.car_id = checks.car WHERE cars.vin_nomer = '{vin}'"
     result: Record = await connection.fetchrow(check_query)
     if result:
         result_as_dict: Dict = dict(result)
         return JSONResponse(result_as_dict)
     raise HTTPException(status_code=404, detail="Item not found")
 
-@app.get('/checks/{gosnomer}')
+@app.get('/checks_gosnomer/{gosnomer}')
 async def check_gosnomer(gosnomer: str):
     connection: Pool = pool_db
-    check_query = f"SELECT * FROM cars LEFT JOIN checks ON cars.car_id = checks.car WHERE cars.vin_nomer = '{gosnomer}'"
+    check_query = f"SELECT * FROM cars LEFT JOIN checks ON cars.car_id = checks.car WHERE cars.gosnomer = '{gosnomer}'"
     result: Record = await connection.fetchrow(check_query)
     if result:
         result_as_dict: Dict = dict(result)
