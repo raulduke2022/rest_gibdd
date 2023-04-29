@@ -12,8 +12,6 @@ app = FastAPI()
 
 pool_db: Pool
 
-app = FastAPI()
-
 @app.on_event("startup")
 async def create_database_pool():
     print('Создается пул подключений.')
@@ -60,6 +58,26 @@ async def brands(vin: str):
         return JSONResponse(result_as_dict)
     raise HTTPException(status_code=404, detail="Item not found")
 
+@app.get('/checks/{vin}')
+async def check_vin(vin: str):
+    connection: Pool = pool_db
+    check_query = 'SELECT * FROM cars LEFT JOIN checks ON cars.car_id = checks.car WHERE gosnomer = $1'
+    result: Record = await connection.fetchrow(check_query, vin)
+    if result:
+        result_as_dict: Dict = dict(result)
+        return JSONResponse(result_as_dict)
+    raise HTTPException(status_code=404, detail="Item not found")
+
+@app.get('/checks/{gosnomer}')
+async def check_gosnomer(gosnomer: str):
+    connection: Pool = pool_db
+    check_query = 'SELECT * FROM cars LEFT JOIN checks ON cars.car_id = checks.car WHERE vin_nomer = $1'
+    result: Record = await connection.fetchrow(check_query, gosnomer)
+    if result:
+        result_as_dict: Dict = dict(result)
+        return JSONResponse(result_as_dict)
+    raise HTTPException(status_code=404, detail="Item not found")
+
 
 origins = [
     "https://testyoursite.ru"
@@ -72,7 +90,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+s
 
 if __name__ == '__main__':
     uvicorn.run(
