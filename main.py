@@ -67,7 +67,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -80,5 +80,5 @@ if __name__ == '__main__':
                host="0.0.0.0",
                port=9002,
                ssl_keyfile="./key_cert.pem",
-               ssl_certfile="./cert.pem"
+              ssl_certfile="./cert.pem"
                )
