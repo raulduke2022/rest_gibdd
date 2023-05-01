@@ -1,6 +1,6 @@
 from typing import Union
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Form
 from fastapi.responses import JSONResponse
 import asyncpg
 from asyncpg import Record
@@ -81,15 +81,9 @@ async def check_gosnomer(gosnomer: str):
         return JSONResponse(result_as_dict)
     raise HTTPException(status_code=404, detail="Item not found")
 
-class Item(BaseModel):
-    name: str
-    description: Union[str, None] = None
-    price: float
-    tax: Union[str, None] = None
-
-@app.post("/items/")
-async def create_item(item: Item):
-    return item
+@app.post("/items")
+def postdata(name=Form(), price=Form()):
+    return {"name": name, "age": price}
 
 origins = [
     "https://testyoursite.ru"
