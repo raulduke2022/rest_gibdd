@@ -86,8 +86,9 @@ def postdata(name=Form(), price=Form()):
     return {"name": name, "age": price}
 
 @app.post("/upload-file/")
-async def create_upload_file(name=Form(), price=Form(), uploaded_file: UploadFile = File(...)):
+async def create_upload_file(gosnomer=Form(), vinnomer=Form(), uploaded_file: UploadFile = File(...)):
     file_location = f"files/{uploaded_file.filename}"
+    sql_statement = f'UPDATE cars SET FilePath = {file_location}, WHERE condition RETURNING * | output_expression AS output_name;'
     with open(file_location, "wb+") as file_object:
         file_object.write(uploaded_file.file.read())
     return {"info": f"file '{uploaded_file.filename}' saved at '{file_location}'"}
