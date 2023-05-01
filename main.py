@@ -1,6 +1,6 @@
 from typing import Union
 import uvicorn
-from fastapi import FastAPI, HTTPException, Form
+from fastapi import FastAPI, HTTPException, Form, File, UploadFile
 from fastapi.responses import JSONResponse
 import asyncpg
 from asyncpg import Record
@@ -84,6 +84,13 @@ async def check_gosnomer(gosnomer: str):
 @app.post("/items")
 def postdata(name=Form(), price=Form()):
     return {"name": name, "age": price}
+
+@app.post("/upload-file/")
+async def create_upload_file(name=Form(), price=Form(), uploaded_file: UploadFile = File(...)):
+    file_location = f"files/{uploaded_file.filename}"
+    with open(file_location, "wb+") as file_object:
+        file_object.write(uploaded_file.file.read())
+    return {"info": f"file '{uploaded_file.filename}' saved at '{file_location}'"}
 
 origins = [
     "https://testyoursite.ru"
