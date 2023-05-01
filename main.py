@@ -15,7 +15,7 @@ pool_db: Pool
 @app.on_event("startup")
 async def create_database_pool():
     print('Создается пул подключений.')
-    pool: Pool = await asyncpg.create_pool(host='localhost',
+    pool: Pool = await asyncpg.create_pool(host='host.docker.internal',
     port=5432,
     user='raulduke',
     password='kakacoarm',
