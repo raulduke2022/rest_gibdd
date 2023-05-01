@@ -8,6 +8,8 @@ from asyncpg.pool import Pool
 from typing import List, Dict
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Union
+
 
 app = FastAPI()
 
@@ -81,9 +83,9 @@ async def check_gosnomer(gosnomer: str):
 
 class Item(BaseModel):
     name: str
-    description: str | None = None
+    description: Union[str, None]
     price: float
-    tax: float | None = None
+    tax: Union[str, None]
 
 @app.post("/items/")
 async def create_item(item: Item):
