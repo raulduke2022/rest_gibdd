@@ -7,6 +7,7 @@ from asyncpg import Record
 from asyncpg.pool import Pool
 from typing import List, Dict
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -78,6 +79,15 @@ async def check_gosnomer(gosnomer: str):
         return JSONResponse(result_as_dict)
     raise HTTPException(status_code=404, detail="Item not found")
 
+class Item(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    tax: float | None = None
+
+@app.post("/items/")
+async def create_item(item: Item):
+    return item
 
 origins = [
     "https://testyoursite.ru"
