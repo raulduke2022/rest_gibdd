@@ -83,9 +83,9 @@ async def check_gosnomer(gosnomer: str):
 
 class Item(BaseModel):
     name: str
-    description: Union[str, None]
+    description: Union[str, None] = None
     price: float
-    tax: Union[str, None]
+    tax: Union[str, None] = None
 
 @app.post("/items/")
 async def create_item(item: Item):
